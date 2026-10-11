@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 import numpy as np
@@ -12,6 +12,7 @@ app.add_middleware(
     allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 TELEMETRY_DATA = json.loads("""
@@ -295,12 +296,15 @@ async def calculate_latency(request: Request):
 
     return {"regions": results}
 
-# Register both the explicit path and the root path so whichever one the grader hits, it works!
+@app.options("/{full_path:path}")
+async def options_handler(full_path: str):
+    return Response(status_code=200, headers={
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "*",
+        "Access-Control-Allow-Headers": "*"
+    })
+
 app.post("/api/latency")(calculate_latency)
 app.post("/")(calculate_latency)
-
-@app.get("/")
-def root():
-    return {"status": "ok"}
 
 handler = Mangum(app)
