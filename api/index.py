@@ -6,7 +6,6 @@ import json
 
 app = FastAPI()
 
-# Enable CORS for POST from any origin
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -24,6 +23,7 @@ def root():
 async def options_handler():
     return Response(status_code=200)
 
+# ✏️  PASTE YOUR OWN TELEMETRY JSON HERE (downloaded from exam portal)
 TELEMETRY_DATA = json.loads("""
 [
   {
